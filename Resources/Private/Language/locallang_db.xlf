@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2017-12-30T17:07:23Z" product-name="pxa_images_compressor">
+        <header/>
+        <body>
+            <trans-unit id="ext_conf.disableCompressing">
+                <source>Disable compressing. Extension won't do anything.</source>
+            </trans-unit>
+            <trans-unit id="ext_conf.jpgCompressingLevel">
+                <source>Compress image with loss of max</source>
+            </trans-unit>
+            <trans-unit id="ext_conf.checkAvailableCommands">
+                <source>Available optimizer tools</source>
+            </trans-unit>
+            <trans-unit id="ext_conf.jpegoptim2_not_found">
+                <source>Failed to execute "jpegoptim2 --help". Impossible to process JPG images.</source>
+            </trans-unit>
+            <trans-unit id="ext_conf.optipng_not_found">
+                <source>Failed to execute "optipng --h". Impossible to process PNG images.</source>
+            </trans-unit>
+            <trans-unit id="ext_conf.command_ok">
+                <source>Everything is ok. Successfully executed "jpegoptim --help" and "optipng --h".</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
