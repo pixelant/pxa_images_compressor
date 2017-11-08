@@ -82,14 +82,15 @@ class ImageCompressService
                 }
 
                 $imageDimensions = $this->getGraphicalFunctionsObject()->getImageDimensions($tempFile);
+                $task = $this->processedFile->getTask();
 
-                $this->processedFile->setName($this->getTargetFileName());
+                $this->processedFile->setName($task->getTargetFileName());
                 $this->processedFile->updateProperties(
                     [
                         'width' => $imageDimensions[0],
                         'height' => $imageDimensions[1],
                         'size' => filesize($tempFile),
-                        'checksum' => $this->getConfigurationChecksum()
+                        'checksum' => $task->getConfigurationChecksum()
                     ]
                 );
                 $this->processedFile->updateWithLocalFile($tempFile);
@@ -146,44 +147,6 @@ class ImageCompressService
     }
 
     /**
-     * @return string
-     */
-    public function getTargetFileName()
-    {
-        return 'csm_' . $this->getSourceFile()->getNameWithoutExtension()
-            . '_' . $this->getConfigurationChecksum()
-            . '.' . $this->determineTargetFileExtension();
-    }
-
-    /**
-     * Sets parameters needed in the checksum. Can be overridden to add additional parameters to the checksum.
-     * This should include all parameters that could possibly vary between different task instances, e.g. the
-     * TYPO3 image configuration in TYPO3_CONF_VARS[GFX] for graphic processing tasks.
-     *
-     * @return array
-     */
-    protected function getChecksumData()
-    {
-        return array(
-            $this->getSourceFile()->getUid(),
-            $this->processedFile->getTaskIdentifier()
-            . '.' . $this->processedFile->getName()
-            . $this->getSourceFile()->getModificationTime(),
-            serialize($this->processedFile->getProcessingConfiguration())
-        );
-    }
-
-    /**
-     * Returns the checksum for this task's configuration, also taking the file and task type into account.
-     *
-     * @return string
-     */
-    protected function getConfigurationChecksum()
-    {
-        return GeneralUtility::shortMD5(implode('|', $this->getChecksumData()));
-    }
-
-    /**
      * Source file
      *
      * @return \TYPO3\CMS\Core\Resource\File
@@ -206,45 +169,5 @@ class ImageCompressService
         }
 
         return $graphicalFunctionsObject;
-    }
-
-    /**
-     * Gets the file extension the processed file should
-     * have in the filesystem by either using the configuration
-     * setting, or the extension of the original file.
-     *
-     * @return string
-     */
-    protected function determineTargetFileExtension()
-    {
-        $configuration = $this->processedFile->getProcessingConfiguration();
-        if (!empty($configuration['fileExtension'])) {
-            $targetFileExtension = $configuration['fileExtension'];
-        } else {
-            // explanation for "thumbnails_png"
-            // Bit0: If set, thumbnails from non-jpegs will be 'png', otherwise 'gif' (0=gif/1=png).
-            // Bit1: Even JPG's will be converted to png or gif (2=gif/3=png)
-
-            $targetFileExtensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['GFX']['thumbnails_png'];
-            if ($this->getSourceFile()->getExtension() === 'jpg' || $this->getSourceFile()->getExtension() === 'jpeg') {
-                if ($targetFileExtensionConfiguration == 2) {
-                    $targetFileExtension = 'gif';
-                } elseif ($targetFileExtensionConfiguration == 3) {
-                    $targetFileExtension = 'png';
-                } else {
-                    $targetFileExtension = 'jpg';
-                }
-            } else {
-                // check if a png or a gif should be created
-                if ($targetFileExtensionConfiguration == 1 || $this->getSourceFile()->getExtension() === 'png') {
-                    $targetFileExtension = 'png';
-                } else {
-                    // thumbnails_png is "0"
-                    $targetFileExtension = 'gif';
-                }
-            }
-        }
-
-        return $targetFileExtension;
     }
 }
