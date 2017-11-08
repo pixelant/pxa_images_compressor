@@ -24,8 +24,7 @@ class Configuration
      */
     public function checkAvailableCommands(
         /** @noinspection PhpUnusedParameterInspection */ array $params,
-        /** @noinspection PhpUnusedParameterInspection */
-        $pObj
+        /** @noinspection PhpUnusedParameterInspection */ $pObj
     ) {
         $errors = [];
 
