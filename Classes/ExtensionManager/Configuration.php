@@ -24,19 +24,17 @@ class Configuration
      */
     public function checkAvailableCommands(
         /** @noinspection PhpUnusedParameterInspection */ array $params,
-        /** @noinspection PhpUnusedParameterInspection */ $pObj
+        /** @noinspection PhpUnusedParameterInspection */
+        $pObj
     ) {
         $errors = [];
 
-        CommandUtility::exec('jpegoptim --help', $output, $result);
-        if ($result !== 0) {
-            $errors[] = $this->sL('ext_conf.jpegoptim2_not_found');
-        }
-        unset($result);
+        foreach (['jpegoptim --help', 'optipng --h'] as $command) {
+            CommandUtility::exec($command, $output, $result);
 
-        CommandUtility::exec('optipng --h', $output, $result);
-        if ($result !== 0) {
-            $errors[] = $this->sL('ext_conf.optipng_not_found');
+            if ($result !== 0) {
+                $errors[] = $this->sL('ext_conf.execute_status', [$command, $result]);
+            }
         }
 
         if (empty($errors)) {
@@ -90,13 +88,16 @@ class Configuration
      * Translates a message.
      *
      * @param string $key
+     * @param array $arguments
      * @return string
      */
-    protected function sL($key)
+    protected function sL($key, array $arguments = [])
     {
-        return $this->getLanguageService()->sL(
+        $label = $this->getLanguageService()->sL(
             'LLL:EXT:' . MainUtility::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:' . $key
         );
+
+        return empty($arguments) ? $label : vsprintf($label, $arguments);
     }
 
     /**

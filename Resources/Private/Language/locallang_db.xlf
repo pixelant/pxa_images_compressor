@@ -12,11 +12,8 @@
             <trans-unit id="ext_conf.checkAvailableCommands">
                 <source>Available optimizer tools</source>
             </trans-unit>
-            <trans-unit id="ext_conf.jpegoptim2_not_found">
-                <source>Failed to execute "jpegoptim2 --help". Impossible to process JPG images.</source>
-            </trans-unit>
-            <trans-unit id="ext_conf.optipng_not_found">
-                <source>Failed to execute "optipng --h". Impossible to process PNG images.</source>
+            <trans-unit id="ext_conf.execute_status">
+                <source>Failed to execute "%1$s" with code "0". Returned value - "%2$s".</source>
             </trans-unit>
             <trans-unit id="ext_conf.command_ok">
                 <source>Everything is ok. Successfully executed "jpegoptim --help" and "optipng --h".</source>
