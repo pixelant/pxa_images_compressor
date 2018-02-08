@@ -1,0 +1,31 @@
+language: php
+
+dist: precise
+
+matrix:
+  include:
+    - php: 7.0
+
+addons:
+  apt:
+    packages:
+      - parallel
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+sudo: false
+
+before_install:
+  - phpenv config-rm xdebug.ini
+  - composer self-update
+  - composer --version
+  - composer install --prefer-dist
+
+script:
+
+  - >
+    echo;
+    echo "Running PHP codesniffer";
+    vendor/bin/phpcs --standard=PSR2 --extensions=php --ignore=./vendor/* ./
