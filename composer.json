@@ -1,7 +1,7 @@
 {
   "name": "pixelant/pxa-images-compressor",
   "type": "typo3-cms-extension",
-  "description": "",
+  "description": "Additional optimize (compress) FE images after processing.",
   "license": ["GPL-2.0+"],
   "keywords": ["TYPO3 CMS"],
   "require": {
