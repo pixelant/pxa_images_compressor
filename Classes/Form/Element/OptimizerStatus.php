@@ -36,7 +36,7 @@ class OptimizerStatus extends AbstractFormElement
             $result['html'] = sprintf(
                 '<p class="bg-success" style="padding: 15px;">%s</p>',
                 $this->sL('st.status.command_ok')
-        );
+            );
         } else {
             $result['html'] = sprintf(
                 '<p class="bg-danger" style="padding: 15px;">%s</p>',

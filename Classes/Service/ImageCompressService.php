@@ -58,7 +58,9 @@ class ImageCompressService
                     return false;
                 }
 
-                $imageDimensions = GeneralUtility::makeInstance(GraphicalFunctions::class)->getImageDimensions($tempFile);
+                $imageDimensions = GeneralUtility::makeInstance(GraphicalFunctions::class)
+                    ->getImageDimensions($tempFile);
+                
                 $task = $this->processedFile->getTask();
 
                 $this->processedFile->setName($task->getTargetFileName());

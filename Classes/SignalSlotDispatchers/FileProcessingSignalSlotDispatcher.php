@@ -61,6 +61,6 @@ class FileProcessingSignalSlotDispatcher
     {
         $properties = $processedFile->getProperties();
 
-        return isset($properties[ConfigurationUtility::DB_FIELD_NAME]) && (int)$properties[ConfigurationUtility::DB_FIELD_NAME] === 1;
+        return intval($properties[ConfigurationUtility::DB_FIELD_NAME] ?? 0) === 1;
     }
 }
