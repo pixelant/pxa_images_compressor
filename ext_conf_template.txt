@@ -1,8 +1,0 @@
-# cat=basic/general/010; type=boolean; label=LLL:EXT:pxa_images_compressor/Resources/Private/Language/locallang_db.xlf:ext_conf.disableCompressing
-disableCompressing = 0
-
-# cat=basic/general/020; type=int; label=LLL:EXT:pxa_images_compressor/Resources/Private/Language/locallang_db.xlf:ext_conf.jpgCompressingLevel
-jpgCompressingLevel = 25
-
-# cat=basic/general/030; type=user[Pixelant\PxaImagesCompressor\ExtensionManager\Configuration->checkAvailableCommands]; label=LLL:EXT:pxa_images_compressor/Resources/Private/Language/locallang_db.xlf:ext_conf.checkAvailableCommands
-checkAvailableCommands =

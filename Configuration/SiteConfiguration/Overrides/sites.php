@@ -28,18 +28,20 @@
                 'default' => 25
             ]
         ],
-        /*'pxaCheckAvailableCommands' => [
-
-        ]*/
+        'pxaOptimizerStatus' => [
+            'label' => $ll . 'st.optimizerStatus',
+            'config' => [
+                'type' => 'user',
+                'renderType' => 'pxaOptimizerStatus'
+            ]
+        ]
     ];
 
     // Add new fields to site configuration
     $GLOBALS['SiteConfiguration']['site']['columns'] = $GLOBALS['SiteConfiguration']['site']['columns'] + $newFields;
     $GLOBALS['SiteConfiguration']['site']['types']['0']['showitem'] = str_replace(
         'base,',
-        'base, --div--;' . $ll . 'st.tab, pxaDisableImageCompressing, pxaJpgCompressingLevel,',
+        'base, --div--;' . $ll . 'st.tab, pxaDisableImageCompressing, pxaJpgCompressingLevel, pxaOptimizerStatus,',
         $GLOBALS['SiteConfiguration']['site']['types']['0']['showitem']
     );
 })();
-
-\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($GLOBALS['SiteConfiguration'], 'Debug', 16);
