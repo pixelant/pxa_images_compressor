@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Pixelant\PxaImagesCompressor\Service;
 
-use Pixelant\PxaImagesCompressor\Utility\MainUtility;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+use Pixelant\PxaImagesCompressor\Utility\ConfigurationUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Imaging\GraphicalFunctions;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
@@ -24,13 +25,6 @@ class ImageCompressService
     protected $processedFile;
 
     /**
-     * Settings
-     *
-     * @var array
-     */
-    protected $settings;
-
-    /**
      * Allowed extension to process
      *
      * @var string
@@ -38,30 +32,13 @@ class ImageCompressService
     protected $allowedExtension = 'jpg,jpeg,png';
 
     /**
-     * DB field in DB to update
-     *
-     * @var string
-     */
-    protected $dbField;
-
-    /**
-     * @var DatabaseConnection
-     */
-    protected $dataBaseConnection;
-
-    /**
      * Init
      *
      * @param ProcessedFile $processedFile
-     * @param array $settings
-     * @param string $dbField
      */
-    public function __construct(ProcessedFile $processedFile, array $settings, $dbField = '')
+    public function __construct(ProcessedFile $processedFile)
     {
         $this->processedFile = $processedFile;
-        $this->settings = $settings;
-        $this->dbField = $dbField ?: MainUtility::DB_FIELD_NAME;
-        $this->dataBaseConnection = $GLOBALS['TYPO3_DB'];
     }
 
     /**
@@ -71,17 +48,17 @@ class ImageCompressService
      */
     public function compress()
     {
-        if (GeneralUtility::inList($this->allowedExtension, $this->processedFile->getExtension())) {
+        if (GeneralUtility::inList($this->allowedExtension, strtolower($this->processedFile->getExtension()))) {
             // If processed file wasn't created
             // This means that TYPO3 will use original file, but we still need to compress it
-            if ($this->processedFile->getIdentifier() === $this->getSourceFile()->getIdentifier()) {
+            if ($this->processedFile->usesOriginalFile()) {
                 try {
-                    $tempFile = $this->getSourceFile()->getForLocalProcessing(true);
+                    $tempFile = $this->processedFile->getOriginalFile()->getForLocalProcessing(true);
                 } catch (\Exception $e) {
                     return false;
                 }
 
-                $imageDimensions = $this->getGraphicalFunctionsObject()->getImageDimensions($tempFile);
+                $imageDimensions = GeneralUtility::makeInstance(GraphicalFunctions::class)->getImageDimensions($tempFile);
                 $task = $this->processedFile->getTask();
 
                 $this->processedFile->setName($task->getTargetFileName());
@@ -100,46 +77,14 @@ class ImageCompressService
                 $processedFileRepository->update($this->processedFile);
             }
 
-            switch ($this->processedFile->getExtension()) {
-                case 'jpg':
-                case 'jpeg':
-                    $command = 'jpegoptim --strip-all';
+            $command = $this->generateCompressCommand();
+            CommandUtility::exec($command, $output, $result);
 
-                    // Append compression level if needed
-                    $jpgCompressingLevel = 100 - (int)$this->settings['jpgCompressingLevel'];
-                    if ($jpgCompressingLevel < 100) {
-                        $command .= ' --max=' . $jpgCompressingLevel;
-                    }
-                    // Append name of file
+            // Success, update field
+            if ($result === 0) {
+                $this->markAsCompressed();
 
-                    $command .= ' ' . $this->processedFile->getForLocalProcessing(false);
-                    break;
-                case 'png':
-                    // Run clean command
-                    $command = 'optipng ' . $this->processedFile->getForLocalProcessing(false);
-                    break;
-                default:
-                    throw new \UnexpectedValueException(
-                        $this->processedFile->getExtension() . ' extension can\'t be compressed.',
-                        1510055827582
-                    );
-            }
-
-            if (isset($command)) {
-                CommandUtility::exec($command, $output, $result);
-
-                // Success, update field
-                if ($result === 0) {
-                    $this->dataBaseConnection->exec_UPDATEquery(
-                        'sys_file_processedfile',
-                        'uid=' . $this->processedFile->getUid(),
-                        [
-                            $this->dbField => 1
-                        ]
-                    );
-
-                    return true;
-                }
+                return true;
             }
         }
 
@@ -147,27 +92,56 @@ class ImageCompressService
     }
 
     /**
-     * Source file
+     * Generate command for compressing
      *
-     * @return \TYPO3\CMS\Core\Resource\File
+     * @return string
      */
-    protected function getSourceFile()
+    protected function generateCompressCommand(): string
     {
-        return $this->processedFile->getOriginalFile();
+        switch (strtolower($this->processedFile->getExtension())) {
+            case 'jpg':
+            case 'jpeg':
+                $command = 'jpegoptim --strip-all';
+
+                // Append compression level if needed
+                $jpgCompressingLevel = 100 - ConfigurationUtility::getJpgCompressingLevel();
+                if ($jpgCompressingLevel < 100) {
+                    $command .= ' --max=' . $jpgCompressingLevel;
+                }
+                // Append name of file
+
+                $command .= ' ' . $this->processedFile->getForLocalProcessing(false);
+                break;
+            case 'png':
+                // Run clean command
+                $command = 'optipng ' . $this->processedFile->getForLocalProcessing(false);
+                break;
+            default:
+                throw new \UnexpectedValueException(
+                    $this->processedFile->getExtension() . ' extension can\'t be compressed.',
+                    1510055827582
+                );
+        }
+
+        return $command;
     }
 
     /**
-     * @return GraphicalFunctions
+     * Mark current processed file as compressed
      */
-    protected function getGraphicalFunctionsObject()
+    protected function markAsCompressed(): void
     {
-        static $graphicalFunctionsObject;
-
-        if ($graphicalFunctionsObject === null) {
-            /** @var GraphicalFunctions $graphicalFunctionsObject */
-            $graphicalFunctionsObject = GeneralUtility::makeInstance(GraphicalFunctions::class);
-        }
-
-        return $graphicalFunctionsObject;
+        GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable('sys_file_processedfile')
+            ->update(
+                'sys_file_processedfile',
+                [
+                    ConfigurationUtility::DB_FIELD_NAME => 1
+                ],
+                ['uid' => $this->processedFile->getUid()],
+                [
+                    \PDO::PARAM_INT
+                ]
+            );
     }
 }

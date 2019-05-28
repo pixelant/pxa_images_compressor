@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Pixelant\PxaImagesCompressor\SignalSlotDispatchers;
 
 use Pixelant\PxaImagesCompressor\Service\ImageCompressService;
-use Pixelant\PxaImagesCompressor\Utility\MainUtility;
+use Pixelant\PxaImagesCompressor\Utility\ConfigurationUtility;
 use TYPO3\CMS\Core\Resource\Driver\DriverInterface;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
@@ -29,23 +30,22 @@ class FileProcessingSignalSlotDispatcher
      * @param string $signalName
      */
     public function handlePostFileProcess(
-        /** @noinspection PhpUnusedParameterInspection */ FileProcessingService $pObj,
+        FileProcessingService $pObj,
         DriverInterface $driver,
         ProcessedFile $processedFile,
         FileInterface $fileObject,
-        $context,
+        string $context,
         array $configuration,
-        $signalName
-    ) {
+        string $signalName
+    ): void {
         if (TYPO3_MODE === 'FE'
-            && $this->isEnabled()
+            && ConfigurationUtility::isCompressionEnabled()
             && !$this->isProcessedFileCompressed($processedFile)
         ) {
             /** @var ImageCompressService $imageCompressService */
             $imageCompressService = GeneralUtility::makeInstance(
                 ImageCompressService::class,
-                $processedFile,
-                MainUtility::getExtensionConfiguration()
+                $processedFile
             );
             $imageCompressService->compress();
         }
@@ -57,22 +57,10 @@ class FileProcessingSignalSlotDispatcher
      * @param ProcessedFile $processedFile
      * @return bool
      */
-    protected function isProcessedFileCompressed(ProcessedFile $processedFile)
+    protected function isProcessedFileCompressed(ProcessedFile $processedFile): bool
     {
         $properties = $processedFile->getProperties();
 
-        return isset($properties[MainUtility::DB_FIELD_NAME]) && (int)$properties[MainUtility::DB_FIELD_NAME] === 1;
-    }
-
-    /**
-     * Check if compressing enabled
-     *
-     * @return bool
-     */
-    protected function isEnabled()
-    {
-        $settings = MainUtility::getExtensionConfiguration();
-
-        return !array_key_exists('disableCompressing', $settings) || (int)$settings['disableCompressing'] === 0;
+        return isset($properties[ConfigurationUtility::DB_FIELD_NAME]) && (int)$properties[ConfigurationUtility::DB_FIELD_NAME] === 1;
     }
 }
