@@ -62,5 +62,4 @@ class OptimizerStatus extends AbstractFormElement
 
         return empty($arguments) ? $label : vsprintf($label, $arguments);
     }
-
 }
