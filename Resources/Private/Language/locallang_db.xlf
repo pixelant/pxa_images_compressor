@@ -3,19 +3,23 @@
     <file source-language="en" datatype="plaintext" original="messages" date="2017-12-30T17:07:23Z" product-name="pxa_images_compressor">
         <header/>
         <body>
-            <trans-unit id="ext_conf.disableCompressing">
-                <source>Disable compressing. Extension won't do anything.</source>
+            <trans-unit id="st.tab">
+                <source>Image compressor</source>
             </trans-unit>
-            <trans-unit id="ext_conf.jpgCompressingLevel">
+            <trans-unit id="st.disableCompressing">
+                <!--Checkbox using invert state-->
+                <source>Enable image compression.</source>
+            </trans-unit>
+            <trans-unit id="st.jpgCompressingLevel">
                 <source>Compress image with loss of max</source>
             </trans-unit>
-            <trans-unit id="ext_conf.checkAvailableCommands">
-                <source>Available optimizer tools</source>
+            <trans-unit id="st.optimizerStatus">
+                <source>Optimizer status</source>
             </trans-unit>
-            <trans-unit id="ext_conf.execute_status">
+            <trans-unit id="st.status.execute_status">
                 <source>Failed to execute "%1$s" with code "0". Returned value - "%2$s".</source>
             </trans-unit>
-            <trans-unit id="ext_conf.command_ok">
+            <trans-unit id="st.status.command_ok">
                 <source>Everything is ok. Successfully executed "jpegoptim --help" and "optipng --h".</source>
             </trans-unit>
         </body>

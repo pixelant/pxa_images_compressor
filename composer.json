@@ -5,10 +5,11 @@
   "license": ["GPL-2.0+"],
   "keywords": ["TYPO3 CMS"],
   "require": {
-    "php": ">=5.4.0"
+    "php": "^7.2",
+    "typo3/cms-core": "^9.5"
   },
   "require-dev": {
-    "squizlabs/php_codesniffer": "2.*"
+    "squizlabs/php_codesniffer": "^3.4"
   },
   "replace": {
     "pxa_images_compressor": "self.version",
@@ -17,6 +18,22 @@
   "autoload": {
     "psr-4": {
       "Pixelant\\PxaImagesCompressor\\": "Classes/"
+    }
+  },
+  "config": {
+    "vendor-dir": ".Build/vendor",
+    "bin-dir": ".Build/bin"
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "mkdir -p .Build/Web/typo3conf/ext/",
+      "[ -L .Build/Web/typo3conf/ext/pxa_images_compressor ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/pxa_images_compressor"
+    ]
+  },
+  "extra": {
+    "typo3/cms": {
+      "cms-package-dir": "{$vendor-dir}/typo3/cms",
+      "web-dir": ".Build/Web"
     }
   }
 }

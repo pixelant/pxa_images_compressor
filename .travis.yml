@@ -1,10 +1,10 @@
 language: php
 
-dist: precise
+dist: xenial
 
 matrix:
   include:
-    - php: 7.0
+    - php: 7.2
 
 addons:
   apt:
@@ -28,4 +28,4 @@ script:
   - >
     echo;
     echo "Running PHP codesniffer";
-    vendor/bin/phpcs --standard=PSR2 --extensions=php --ignore=./vendor/* ./
+    .Build/bin/phpcs --standard=PSR2 --extensions=php --ignore=./.Build/* .;
