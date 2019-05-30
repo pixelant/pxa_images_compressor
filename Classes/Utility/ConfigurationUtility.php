@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Pixelant\PxaImagesCompressor\Utility;
 
+use TYPO3\CMS\Core\Site\Entity\NullSite;
 use TYPO3\CMS\Core\Site\Entity\Site;
 
 /**
@@ -49,6 +50,11 @@ class ConfigurationUtility
     {
         /** @var Site $site */
         $site = $GLOBALS['TYPO3_REQUEST']->getAttribute('site');
+
+        if ($site === null || $site instanceof NullSite) {
+            return [];
+        }
+
         return $site->getConfiguration();
     }
 }
