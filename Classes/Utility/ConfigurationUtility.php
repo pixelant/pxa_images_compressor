@@ -38,7 +38,7 @@ class ConfigurationUtility
     {
         $configuration = static::getConfiguration();
 
-        return (int)($configuration['pxaJpgCompressingLevel'] ?? 0);
+        return (int)($configuration['pxaJpgCompressingLevel'] ?? 25);
     }
 
     /**
